@@ -1,9 +1,10 @@
 #Referencia> documentacion y presentacion en clase
 import pefile
 import subprocess
-
+import pandas as pd
 from os import listdir
 import os
+import csv
 from os.path import isfile, join
 
 mypath = os.getcwd()+'/MALWR'
@@ -18,18 +19,33 @@ for i in malware_files:
 
 #mostrar los nombres de sections
 for malware in malware_files:
-    print(malware)
+    info_malware= {}
+
     pe = pefile.PE(mypath+'/'+malware)
     for section in pe.sections:
-        print(section.Name)
+        #print(section.Name.decode(),str(section.Name).split("'")[1].split("\\")[0])
+        info_malware  = {
+                          section.Name.strip(b'\00').decode(): True,
+                          section.Name.strip(b'\00').decode()+'vAddress':section.VirtualAddress,
+                          section.Name.strip(b'\00').decode()+'vSize':section.Misc_VirtualSize,
+                          section.Name.strip(b'\00').decode()+'rSize': section.SizeOfRawData
+                        }
+
+    #Obteniendo dlls y llamadas a APIS
+    for entry in pe.DIRECTORY_ENTRY_IMPORT:
+
+        info_malware[entry.dll.decode()] = True
+
+    for function in entry.imports:
+        info_malware[function.name.decode()] = True
+
+    df.append(info_malware)
+
+df = pd.DataFrame(df)
 
 
-'''
-pe = pefile.PE(executable)
+print(df.head(15))
+print(df.shape)
 
-
-for section in pe.sections:
-  print(section.Name, hex(section.VirtualAddress),
-    hex(section.Misc_VirtualSize), section.SizeOfRawData )'''
-
-
+#https://towardsdatascience.com/how-to-export-pandas-dataframe-to-csv-2038e43d9c03
+df.to_csv('malware_dataset.csv', index=False)
