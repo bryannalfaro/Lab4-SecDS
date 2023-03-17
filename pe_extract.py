@@ -1,5 +1,6 @@
 #Referencia> documentacion y presentacion en clase
 import pefile
+import subprocess
 
 from os import listdir
 import os
@@ -11,8 +12,11 @@ malware_files = [f for f in listdir(mypath)]
 
 df = []
 
-print(malware_files)
+#desempaquetando archivos con UPX
+for i in malware_files:
+  subprocess.run(['upx','-d',mypath+'/'+i])
 
+#mostrar los nombres de sections
 for malware in malware_files:
     print(malware)
     pe = pefile.PE(mypath+'/'+malware)
@@ -27,3 +31,5 @@ pe = pefile.PE(executable)
 for section in pe.sections:
   print(section.Name, hex(section.VirtualAddress),
     hex(section.Misc_VirtualSize), section.SizeOfRawData )'''
+
+
