@@ -15,13 +15,13 @@ def getstrings(fullpath):
 
 def run_jacard():
   malware_path = './MALWR'
-  threshold = 0.8
+  threshold = 0.70
 
   malware_paths = [] # where we'll store the malware file paths
   malware_attributes = dict() # where we'll store the malware strings
   graph = networkx.Graph() # the similarity graph
 
-  for root, dirs, paths in os.walk(malware_path):
+  for root, paths in os.walk(malware_path):
       for path in paths:
           full_path = os.path.join(root,path)
           malware_paths.append(full_path)
